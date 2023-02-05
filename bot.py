@@ -39,11 +39,12 @@ price = "ask"  # entry price if buying via market execution
 price2 = "bid"  # entry price if selling via market execution
 
 use_risk = True  # use percent risk?
-risk = 0.25  # risk percent
+risk = 1.0  # risk percent
 use_lot_size = False  # use lot size?
-lotsize = 0.10  # lot size~
-stoploss = 10  # stop loss
-takeprofit = 40  # take profit
+lotsizes = 0.05  # lot size~
+stoploss = 50  # stop loss
+takeprofit = 400  # take profit
+
 
 
 use_time = False  # use trading hours?
@@ -212,7 +213,8 @@ double_flat_bearish_SL = double_flat_object.Bearish_SL(
 
 
 
-
+# lot size with stop loss in pips
+lotsize = trend.MT5functions.Get_Risk(use_risk,use_lot_size,risk,stoploss,lotsizes,currency_pair)
 
 
 
@@ -316,10 +318,16 @@ class Trade:
 
 # run trade
 
-# declare trade config class as an object~
+# declare trade config class as an object
 trade = Trade()
 
+# this will trade if no orders are opened 
+def trade_now():
+    if trend.MT5functions.allow_time(use_time, start_time, stop_time):
+        if not trend.MT5functions.check_if_order_opened(currency_pair,magicnumber):
+            trade.MovingAverage()
+            return True
 
-# now use whichever strategy you want
-trade.MovingAverage()
-
+# this will make it take a trade again if order is closed
+while True:
+    trade_now()

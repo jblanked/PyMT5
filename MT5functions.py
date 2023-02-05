@@ -3,6 +3,8 @@ import MetaTrader5
 import re
 
 
+
+
 # timeframes
 # you can even do times in between each, like 2 hour, 3 hour, 2 minute, etc
 one_minute = MetaTrader5.TIMEFRAME_M1
@@ -29,9 +31,18 @@ def get_account_equity():
     account_equity = get_account_info().equity
     return account_equity
 
-def get_tick_value():
-    tick_value = get_account_info().tick_value
+def get_tick_value(symbol):
+    tick = MetaTrader5.symbol_info_tick(symbol)
+    ask_price = tick.ask
+    ask_price_str = str(ask_price)
+    decimal_places = len(ask_price_str.split(".")[1])
+    tick_value = round(ask_price * 10**(-1 * decimal_places), 2)
     return tick_value
+
+
+
+
+
 
 def get_account_company():
     account_company = get_account_info().company
@@ -48,6 +59,67 @@ def get_account_name():
 def get_account_profit():
     account_profit = get_account_info().profit
     return account_profit
+
+def get_order_magic_number():
+    magicnumber = MetaTrader5.positions_get(symbol = "ETHUSD")
+    for items in magicnumber:
+        return items.magic
+
+def get_order_stop_loss():
+    magicnumber = MetaTrader5.positions_get(symbol = "ETHUSD")
+    for items in magicnumber:
+        return items.sl
+
+def get_order_take_profit():
+    magicnumber = MetaTrader5.positions_get(symbol = "ETHUSD")
+    for items in magicnumber:
+        return items.tp
+
+def get_order_comment():
+    magicnumber = MetaTrader5.positions_get(symbol = "ETHUSD")
+    for items in magicnumber:
+        return items.comment
+
+def get_order_lot_size():
+    magicnumber = MetaTrader5.positions_get(symbol = "ETHUSD")
+    for items in magicnumber:
+        return items.volume
+
+def get_order_type():
+    magicnumber = MetaTrader5.positions_get(symbol = "ETHUSD")
+    for items in magicnumber:
+        return items.type
+
+def get_order_symbol():
+    magicnumber = MetaTrader5.positions_get(symbol = "ETHUSD")
+    for items in magicnumber:
+        return items.symbol
+
+def get_order_open_price():
+    magicnumber = MetaTrader5.positions_get(symbol = "ETHUSD")
+    for items in magicnumber:
+        return items.price_open
+
+def get_order_current_price():
+    magicnumber = MetaTrader5.positions_get(symbol = "ETHUSD")
+    for items in magicnumber:
+        return items.price_current
+
+
+def check_if_order_opened(symbol, magicnumberr):
+    magic = get_order_magic_number()
+    order_symbol = get_order_symbol()
+    total_orders = MetaTrader5.positions_total()
+    if total_orders > 0 and order_symbol == symbol and magic == magicnumberr:
+        return True
+    return False
+
+def get_order_status():
+    if get_order_open_price() <= 0:
+        return True
+    return False
+
+        
 
 
 
@@ -83,9 +155,9 @@ def Get_Pip_Value(symbol):
 
 def Get_Risk(useRisk, useLotSize, percentrisk, stoplosss, lotsizee, symbol):
     current_symbol_string = str(MetaTrader5.symbol_info(symbol))
-
+    tickk_valuee = get_tick_value(symbol)
     if useRisk and not useLotSize:
-        equity = ~get_account_equity()
+        equity = get_account_equity()
         decimal_risk = percentrisk / 100
         account_risk = equity * decimal_risk
        
@@ -101,16 +173,15 @@ def Get_Risk(useRisk, useLotSize, percentrisk, stoplosss, lotsizee, symbol):
         if current_symbol_string == "NAS100.mini":
             tickk_valuee = tickk_valuee * 100
 
-        max_loss_in_quote_currency = account_risk / tickk_valuee
+        max_loss_in_quote_currency =  division(account_risk,tickk_valuee)
         get_risk = max_loss_in_quote_currency / (stoplosss * Get_Pip_Value(symbol)) / lotsizee
-        return get_risk
+        return round(get_risk,2)
 
     if useLotSize and not useRisk:
         gett_riskk = lotsizee
         return gett_riskk
 
-    else:
-        return lotsizee
+    return lotsizee
 
 
 
