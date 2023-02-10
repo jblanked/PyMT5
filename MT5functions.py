@@ -122,7 +122,7 @@ def check_if_order_opened(symbol, magicnumberr):
 
     magic = order_info(symbol, "magic number")
     order_symbol = order_info(symbol, "symbol")
-    print(f"total limit orders = {total_limit_orders}, magic number = {magic}, order symbol = {order_symbol} ")
+    
     for open_orders in total_list:
         if total_limit_orders == 0:
             return False
@@ -286,7 +286,7 @@ def Get_Pair_Extension():
 
 
 def Expiry_name():
-    account_name_1 = ""
+    account_name_1 = "Jacobie Barksdale"
     account_name_2 = ""
     account_name_3 = ""
     account_name_4 = ""
