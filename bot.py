@@ -2,8 +2,7 @@ import trend
 import ordersettings
 import login
 import password as p
-
-
+import sys
 
 
 # account number as integer
@@ -23,12 +22,24 @@ if __name__ == '__main__':
                     account_password, broker_server_name)
 
 
+# checks if your account name is allowed (change in MT5functions.py)
+if not trend.MT5functions.Expiry_name():
+    sys.exit("You are not allowed to use this EA")
+
+
+# choose which strategies you want to use
+use_moving_average = True
+use_fair_value_gap = False
+use_doji = False
+use_double_flat = False
+use_daily_range = True
+
 
 currency_pair = "ETHUSD"  # currency pair to trade
 
-# timeframe
-# changed one_minute to your time frame
-time_frame = trend.MT5functions.one_minute 
+
+# changed integer to your time frame (its in minutes)
+time_frame = trend.MT5functions.timeframe(1)
 
 order_type_buy = "buy"  # buy market execution order
 order_type_sell = "sell"  # sell market execution order
@@ -39,22 +50,25 @@ price = "ask"  # entry price if buying via market execution
 price2 = "bid"  # entry price if selling via market execution
 
 use_risk = True  # use percent risk?
-risk = 1.0  # risk percent
+risk = 1.00  # risk percent
 use_lot_size = False  # use lot size?
-lotsizes = 0.05  # lot size~
+lotsizes = 0.05  # lot size
 stoploss = 50  # stop loss
-takeprofit = 400  # take profit
+takeprofit = 500  # take profit
 
 
-
-use_time = False  # use trading hours?
+use_time = False  # use custom trading hours?
 start_time = "08:00"  # start time (server time)
 stop_time = "16:49"  # stop time (server time)
 
 ordercomment = "Python Test"  # order comment
 magicnumber = 899811  # magic number
 
-
+magicnumber1 = magicnumber + 1
+magicnumber2 = magicnumber + 2
+magicnumber3 = magicnumber + 3
+magicnumber4 = magicnumber + 4
+magicnumber5 = magicnumber + 5
 
 
 # moving average settings
@@ -64,13 +78,10 @@ ma_mode = "MODE_SMA"  # moving average mode
 ma_shift = 0  # moving average shift (bars away)
 
 
-
 # rsi settings
 rsi_period = 7  # rsi period
 rsi_applied_price = "PRICE_CLOSE"  # rsi applied price
 rsi_shift = 0  # rsi shift (bars away)
-
-
 
 
 # fair value gap settings
@@ -78,147 +89,174 @@ middlebodypercent = 10  # 1st/3rd wick less/more than x% of 2nd candle body
 firstbodypercent = 10  # 2nd wick less/more than x% of 1st candle body
 thirdbodypercent = 10  # 2nd wick less/more than x% of 3rd candle body
 
-# declared the FVG class as a vairable
-fair_value_gap_object = trend.FairValueGap()
-
-# fair value gap bullish entry
-FVG_bullish_entry = fair_value_gap_object.Bullish_entry(
-    symbol=currency_pair,
-    timeframe=trend.MT5functions.one_minute,
-    middle_body_percent=middlebodypercent,
-    first_body_percent=firstbodypercent,
-    third_body_percent=thirdbodypercent)
-
-# fair value gap bearish entry
-FVG_bearish_entry = fair_value_gap_object.Bearish_entry(
-    symbol=currency_pair,
-    timeframe=trend.MT5functions.one_minute,
-    middle_body_percent=middlebodypercent,
-    first_body_percent=firstbodypercent,
-    third_body_percent=thirdbodypercent)
-
-# fair value gap bullish SL
-FVG_bullish_SL = fair_value_gap_object.Bullish_SL(
-    symbol=currency_pair,
-    timeframe=trend.MT5functions.one_minute,
-    middle_body_percent=middlebodypercent,
-    first_body_percent=firstbodypercent,
-    third_body_percent=thirdbodypercent)
-
-# fair value gap bearish SL
-FVG_bearish_SL = fair_value_gap_object.Bearish_SL(
-    symbol=currency_pair,
-    timeframe=trend.MT5functions.one_minute,
-    middle_body_percent=middlebodypercent,
-    first_body_percent=firstbodypercent,
-    third_body_percent=thirdbodypercent)
-
-# fair value gap bullish TP
-FVG_bullish_TP = fair_value_gap_object.Bullish_TP(
-    symbol=currency_pair,
-    timeframe=trend.MT5functions.one_minute,
-    middle_body_percent=middlebodypercent,
-    first_body_percent=firstbodypercent,
-    third_body_percent=thirdbodypercent)
-
-# fair value gap bearish TP
-FVG_bearish_TP = fair_value_gap_object.Bearish_TP(
-    symbol=currency_pair,
-    timeframe=trend.MT5functions.one_minute,
-    middle_body_percent=middlebodypercent,
-    first_body_percent=firstbodypercent,
-    third_body_percent=thirdbodypercent)
-
-
-
-
-
-
-
 # doji settings
 doji_body_pips = 1.0  # Body lengnth <= X pips
 doji_wick_pips = 1.0  # Difference of both wick lengths <= X pips
 doji_wickk_length = 1.0  # Both Wick length's >= X pips
 
-doji_object = trend.Doji()  # declared the Doji class as a variable
-
-# doji bullish entry
-doji_bullish_entry = doji_object.Bullish_entry(
-    currency_pair,
-    trend.MT5functions.one_minute,
-    doji_body_pips,
-    doji_wick_pips,
-    doji_wickk_length)
-
-# doji bearish entry
-doji_bearish_entry = doji_object.Bearish_entry(
-    currency_pair,
-    trend.MT5functions.one_minute,
-    doji_body_pips,
-    doji_wick_pips,
-    doji_wickk_length)
-
-# doji bullish SL
-doji_bullish_SL = doji_object.Bullish_SL(
-    currency_pair,
-    trend.MT5functions.one_minute,
-    doji_body_pips,
-    doji_wick_pips,
-    doji_wickk_length)
-
-# doji bearish SL
-doji_bearish_SL = doji_object.Bearish_SL(
-    currency_pair,
-    trend.MT5functions.one_minute,
-    doji_body_pips,
-    doji_wick_pips,
-    doji_wickk_length)
-
-
 # double flat settings
 pip_cushion = 1.0  # pip cushion (double flat within pip range)
 double_flat_wick_length = 2.0  # wick length <= X
 
+
+# lot size for stop loss in pips
+lotsize = trend.MT5functions.Get_Risk(
+    use_risk, use_lot_size, risk, stoploss, lotsizes, currency_pair)
+
 # declared the Doubleflat class as a variable
 double_flat_object = trend.DoubleFlat()
 
-# double flat bullish entry
-double_flat_bullish_entry = double_flat_object.Bullish_entry(
-    currency_pair,
-    trend.MT5functions.one_minute,
-    pip_cushion,
-    double_flat_wick_length)
+# declared the FVG class as a vairable
+fair_value_gap_object = trend.FairValueGap()
 
-# double flat bearish entry
-double_flat_bearish_entry = double_flat_object.Bearish_entry(
-    currency_pair,
-    trend.MT5functions.one_minute,
-    pip_cushion,
-    double_flat_wick_length)
-
-# double flat bullish SL
-double_flat_bullish_SL = double_flat_object.Bullish_SL(
-    currency_pair,
-    trend.MT5functions.one_minute,
-    pip_cushion,
-    double_flat_wick_length)
-
-# double flat bearish SL
-double_flat_bearish_SL = double_flat_object.Bearish_SL(
-    currency_pair,
-    trend.MT5functions.one_minute,
-    pip_cushion,
-    double_flat_wick_length)
+doji_object = trend.Doji()  # declared the Doji class as a variable
 
 
+def DoubleFlat_prices(bullish_or_bearish, which_position):
+
+    decision = bullish_or_bearish.lower()
+    position = which_position.lower()
+
+    if decision == "bullish":
+        if position == "entry":
+            # double flat bullish entry
+            return double_flat_object.Bullish_entry(
+                currency_pair,
+                time_frame,
+                pip_cushion,
+                double_flat_wick_length)
+
+        if position == "stop loss":
+            # double flat bullish SL
+            return double_flat_object.Bullish_SL(
+                currency_pair,
+                time_frame,
+                pip_cushion,
+                double_flat_wick_length)
+
+    if decision == "bearish":
+        if position == "entry":
+            # double flat bearish entry
+            return double_flat_object.Bearish_entry(
+                currency_pair,
+                time_frame,
+                pip_cushion,
+                double_flat_wick_length)
+
+        if position == "stop loss":
+            # double flat bearish SL
+            return double_flat_object.Bearish_SL(
+                currency_pair,
+                time_frame,
+                pip_cushion,
+                double_flat_wick_length)
 
 
-# lot size with stop loss in pips
-lotsize = trend.MT5functions.Get_Risk(use_risk,use_lot_size,risk,stoploss,lotsizes,currency_pair)
+def Doji_prices(bullish_or_bearish, which_position):
+
+    decision = bullish_or_bearish.lower()
+    position = which_position.lower()
+
+    if decision == "bullish":
+        if position == "entry":
+            # doji bullish entry
+            return doji_object.Bullish_entry(
+                currency_pair,
+                time_frame,
+                doji_body_pips,
+                doji_wick_pips,
+                doji_wickk_length)
+
+        if position == "stop loss":
+            # doji bullish SL
+            return doji_object.Bullish_SL(
+                currency_pair,
+                time_frame,
+                doji_body_pips,
+                doji_wick_pips,
+                doji_wickk_length)
+
+    if decision == "bearish":
+        if position == "entry":
+            # doji bearish entry
+            return doji_object.Bearish_entry(
+                currency_pair,
+                time_frame,
+                doji_body_pips,
+                doji_wick_pips,
+                doji_wickk_length)
+
+        if position == "stop loss":
+            # doji bearish SL
+            return doji_object.Bearish_SL(
+                currency_pair,
+                time_frame,
+                doji_body_pips,
+                doji_wick_pips,
+                doji_wickk_length)
 
 
+def FVG_prices(bullish_or_bearish, which_position):
+
+    decision = bullish_or_bearish.lower()
+    position = which_position.lower()
+
+    if decision == "bullish":
+        if position == "entry":
+            # fair value gap bullish entry
+            return fair_value_gap_object.Bullish_entry(
+                currency_pair,
+                time_frame,
+                middlebodypercent,
+                firstbodypercent,
+                thirdbodypercent)
+        if position == "stop loss":
+            # fair value gap bullish SL
+            return fair_value_gap_object.Bullish_SL(
+                currency_pair,
+                time_frame,
+                middlebodypercent,
+                firstbodypercent,
+                thirdbodypercent)
+        if position == "take profit":
+            # fair value gap bullish TP
+            return fair_value_gap_object.Bullish_TP(
+                currency_pair,
+                time_frame,
+                middlebodypercent,
+                firstbodypercent,
+                thirdbodypercent)
+
+    if decision == "bearish" and position == "entry":
+        # fair value gap bearish entry
+        return fair_value_gap_object.Bearish_entry(
+            currency_pair,
+            time_frame,
+            middlebodypercent,
+            firstbodypercent,
+            thirdbodypercent)
+
+    if decision == "bearish" and position == "stop loss":
+        # fair value gap bearish SL
+        return fair_value_gap_object.Bearish_SL(
+            currency_pair,
+            time_frame,
+            middlebodypercent,
+            firstbodypercent,
+            thirdbodypercent)
+
+    if decision == "bearish" and position == "take profit":
+        # fair value gap bearish TP
+        return fair_value_gap_object.Bearish_TP(
+            currency_pair,
+            time_frame,
+            middlebodypercent,
+            firstbodypercent,
+            thirdbodypercent)
 
 # trading configurations
+
+
 class Trade:
 
     def __init__(self) -> None:
@@ -227,59 +265,66 @@ class Trade:
     def FairValueGap(self):
         # this one will buy if there's a bullish fair value gap
         # and sell if there's a bearish fair value gap
-        if fair_value_gap_object.trend(currency_pair,
-                                       time_frame,
-                                       middlebodypercent,
-                                       firstbodypercent,~
-                                       thirdbodypercent) == "Buy":
+        if not trend.MT5functions.check_if_order_opened(currency_pair, magicnumber4):
+            if fair_value_gap_object.trend(currency_pair,
+                                           time_frame,
+                                           middlebodypercent,
+                                           firstbodypercent, ~
+                                           thirdbodypercent) == "Buy":
 
-            ordersettings.SendCustomOrder(currency_pair, order_type_buy_limit, lotsize, FVG_bullish_entry, 0,
-                                          FVG_bullish_SL, FVG_bullish_TP, ordercomment, magicnumber)
+                ordersettings.OrderSend(currency_pair, order_type_buy_limit, lotsize, FVG_prices("bullish", "entry"), 0, True,
+                                        FVG_prices("bullish", "stop loss"), True, FVG_prices("bullish", "take profit"), ordercomment, magicnumber4)
+                # print(
+                #    f"Bullish Fair Value gap... Buying {currency_pair} at {FVG_bullish_entry}")
 
-        if fair_value_gap_object.trend(currency_pair,
-                                       time_frame,
-                                       middlebodypercent,
-                                       firstbodypercent,
-                                       thirdbodypercent) == "Sell":
+            if fair_value_gap_object.trend(currency_pair,
+                                           time_frame,
+                                           middlebodypercent,
+                                           firstbodypercent,
+                                           thirdbodypercent) == "Sell":
 
-            ordersettings.SendCustomOrder(currency_pair, order_type_sell_limit, lotsize, FVG_bearish_entry,
-                                          0, FVG_bearish_SL, FVG_bearish_TP, ordercomment, magicnumber)
+                ordersettings.OrderSend(currency_pair, order_type_sell_limit, lotsize, FVG_prices("bearish", "entry"),
+                                        0, True, FVG_prices("bearish", "stop loss"), True, FVG_prices("bearish", "take profit"), ordercomment, magicnumber4)
 
     def DoubleFlat(self):
         # this one will buy if there's a bullish Double flat bottom
         # and sell if theres a bearish double flat top
-        if double_flat_object.trend(currency_pair,
-                                    time_frame,
-                                    pip_cushion,
-                                    double_flat_wick_length) == "Buy":
+        if not trend.MT5functions.check_if_order_opened(currency_pair, magicnumber3):
+            if double_flat_object.trend(currency_pair,
+                                        time_frame,
+                                        pip_cushion,
+                                        double_flat_wick_length) == "Buy":
 
-            ordersettings.SendCustomOrderSL(currency_pair, order_type_buy_limit, lotsize, double_flat_bullish_entry, 0,
-                                            double_flat_bullish_SL, takeprofit, ordercomment, magicnumber)
-        if double_flat_object.trend(currency_pair,
-                                    time_frame,
-                                    pip_cushion,
-                                    double_flat_wick_length) == "Sell":
+                ordersettings.OrderSend(currency_pair, order_type_buy_limit, lotsize, DoubleFlat_prices("bullish", "entry"), 0, True,
+                                        DoubleFlat_prices("bullish", "stop loss"), False, takeprofit, ordercomment, magicnumber3)
 
-            ordersettings.SendCustomOrderSL(currency_pair, order_type_buy_limit, lotsize, double_flat_bearish_entry, 0,
-                                            double_flat_bearish_SL, takeprofit, ordercomment, magicnumber)
+            if double_flat_object.trend(currency_pair,
+                                        time_frame,
+                                        pip_cushion,
+                                        double_flat_wick_length) == "Sell":
+
+                ordersettings.OrderSend(currency_pair, order_type_buy_limit, lotsize, DoubleFlat_prices("bearish", "entry"), 0, True,
+                                        DoubleFlat_prices("bearish", "stop loss"), False, takeprofit, ordercomment, magicnumber3)
 
     def Doji(self):
         # this one will buy if there's a bullish Doji candle
         # and sell if there's a bearish doji candle
-        if doji_object.trend(currency_pair,
-                             time_frame,
-                             doji_body_pips,
-                             doji_wick_pips,
-                             doji_wickk_length) == "Buy":
-            ordersettings.SendCustomOrderSL(currency_pair, order_type_buy_limit, lotsize, doji_bullish_entry, 0,
-                                            doji_bullish_SL, takeprofit, ordercomment, magicnumber)
-        if doji_object.trend(currency_pair,
-                             time_frame,
-                             doji_body_pips,
-                             doji_wick_pips,
-                             doji_wickk_length) == "Sell":
-            ordersettings.SendCustomOrderSL(currency_pair, order_type_buy_limit, lotsize, doji_bearish_entry, 0,
-                                            doji_bearish_SL, takeprofit, ordercomment, magicnumber)
+        if not trend.MT5functions.check_if_order_opened(currency_pair, magicnumber2):
+            if doji_object.trend(currency_pair,
+                                 time_frame,
+                                 doji_body_pips,
+                                 doji_wick_pips,
+                                 doji_wickk_length) == "Buy":
+                ordersettings.OrderSend(currency_pair, order_type_buy_limit, lotsize, Doji_prices("bullish", "entry"), 0, True,
+                                        Doji_prices("bullish", "stop loss"), False, takeprofit, ordercomment, magicnumber2)
+
+            if doji_object.trend(currency_pair,
+                                 time_frame,
+                                 doji_body_pips,
+                                 doji_wick_pips,
+                                 doji_wickk_length) == "Sell":
+                ordersettings.OrderSend(currency_pair, order_type_buy_limit, lotsize, Doji_prices("bearish", "entry"), 0, True,
+                                        Doji_prices("bearish", "stop loss"), False, takeprofit, ordercomment, magicnumber2)
 
     def MovingAverage(self):
         # this will buy if price is above the moving average
@@ -288,46 +333,59 @@ class Trade:
             currency_pair).ask  # getting the ask price
         bid_price = trend.MetaTrader5.symbol_info_tick(
             currency_pair).bid  # getting the bid price
-        if trend.iMA(currency_pair,
-                     time_frame,
-                     ma_period,
-                     ma_mode,
-                     ma_applied_price,
-                     0) > ask_price:
-            ordersettings.SendOrder(currency_pair, order_type_buy, lotsize, "ask", 0,
-                                    stoploss, takeprofit, ordercomment, magicnumber)
-        if trend.iMA(currency_pair,
-                     time_frame,
-                     ma_period,
-                     ma_mode,
-                     ma_applied_price,
-                     0) < bid_price:
-            ordersettings.SendOrder(currency_pair, order_type_sell, lotsize, "bid", 0,
-                                    stoploss, takeprofit, ordercomment, magicnumber)
+        if not trend.MT5functions.check_if_position_opened(currency_pair, magicnumber):
+            if trend.iMA(currency_pair,
+                         time_frame,
+                         ma_period,
+                         ma_mode,
+                         ma_applied_price,
+                         0) > ask_price:
+                ordersettings.OrderSend(currency_pair, order_type_buy, lotsize, "ask", 0, False,
+                                        stoploss, False, takeprofit, ordercomment, magicnumber)
+                # print(f"Buying {currency_pair} at {trend.MT5functions.get_order_open_price()}... price is in the Moving Average buy setup")
+            if trend.iMA(currency_pair,
+                         time_frame,
+                         ma_period,
+                         ma_mode,
+                         ma_applied_price,
+                         0) < bid_price:
+                ordersettings.OrderSend(currency_pair, order_type_sell, lotsize, "bid", 0, False,
+                                        stoploss, False, takeprofit, ordercomment, magicnumber)
 
     def DailyRange(self):
         # this will set a buy limit at session high
-        # and a sell limt  at session low
-        daily_low = trend.daily_loww(currency_pair)
-        daily_high = trend.daily_highh(currency_pair)
-        ordersettings.SendOrder(currency_pair, order_type_buy_limit, lotsize, daily_low, 0,
-                                stoploss, takeprofit, ordercomment, magicnumber)
-        ordersettings.SendOrder(currency_pair, order_type_sell_limit, lotsize, daily_high, 0,
-                                stoploss, takeprofit, ordercomment, magicnumber)
+        # and a sell limt  at session low~
+        daily_low = trend.iLow(
+            currency_pair, trend.MT5functions.timeframe(1440), 0)
+        daily_high = trend.iHigh(
+            currency_pair, trend.MT5functions.timeframe(1440), 0)
+        if not trend.MT5functions.check_if_order_opened(currency_pair, magicnumber1):
+            ordersettings.OrderSend(currency_pair, order_type_buy_limit, lotsize, daily_low, 0, False,
+                                    stoploss, False, takeprofit, ordercomment, magicnumber1)
+            ordersettings.OrderSend(currency_pair, order_type_sell_limit, lotsize, daily_high, 0, False,
+                                    stoploss, False, takeprofit, ordercomment, magicnumber1)
 
 
 # run trade
 
-# declare trade config class as an object
+# declare trade config class as an~ object
 trade = Trade()
 
-# this will trade if no orders are opened 
-def trade_now():
-    if trend.MT5functions.allow_time(use_time, start_time, stop_time):
-        if not trend.MT5functions.check_if_order_opened(currency_pair,magicnumber):
-            trade.MovingAverage()
-            return True
 
-# this will make it take a trade again if order is closed
+def allow_trades():
+    if trend.MT5functions.allow_time(use_time, start_time, stop_time):
+        if use_daily_range:
+            trade.DailyRange()
+        if use_moving_average:
+            trade.MovingAverage()
+        if use_doji:
+            trade.Doji()
+        if use_double_flat:
+            trade.DoubleFlat()
+        if use_fair_value_gap:
+            trade.FairValueGap()
+
+
+# bad practice, but this needs to run indefinitely
 while True:
-    trade_now()
+    allow_trades()
