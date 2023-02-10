@@ -286,7 +286,7 @@ def Get_Pair_Extension():
 
 
 def Expiry_name():
-    account_name_1 = "Jacobie Barksdale"
+    account_name_1 = ""
     account_name_2 = ""
     account_name_3 = ""
     account_name_4 = ""
