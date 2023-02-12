@@ -16,8 +16,8 @@ class Trend:
     def Bearish(self, symbol, timeframe, how_many_candles):
         i = how_many_candles
         while i > 0:
-            close_price_past = choose_closee(symbol, timeframe, i)
-            open_price_past = choose_openn(symbol, timeframe, i)
+            close_price_past = iClose(symbol, timeframe, i)
+            open_price_past = iOpen(symbol, timeframe, i)
 
             if close_price_past >= open_price_past:
                 return False
@@ -27,8 +27,8 @@ class Trend:
     def Bullish(self, symbol, timeframe, how_many_candles):
         i = how_many_candles
         while i > 0:
-            close_price_past = choose_closee(symbol, timeframe, i)
-            open_price_past = choose_openn(symbol, timeframe, i)
+            close_price_past = iClose(symbol, timeframe, i)
+            open_price_past = iOpen(symbol, timeframe, i)
 
             if close_price_past <= open_price_past:
                 return False
