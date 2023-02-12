@@ -9,31 +9,17 @@ def get_recent_bars(currency, timeframe, shift, starting_bar):
     return candle_data
 
 
-class Trend:
-    def __init__(self) -> None:
-        pass
+def pattern(symbol, timeframe, how_many_candles):
 
-    def Bearish(self, symbol, timeframe, how_many_candles):
-        i = how_many_candles
-        while i > 0:
-            close_price_past = iClose(symbol, timeframe, i)
-            open_price_past = iOpen(symbol, timeframe, i)
+    close_price_past = iClose(symbol, timeframe, 1)
+    open_price_past = iOpen(symbol, timeframe, how_many_candles)
 
-            if close_price_past >= open_price_past:
-                return False
-            i = i - 1
-        return True
+    if close_price_past < open_price_past:
+        return "Bearish"
 
-    def Bullish(self, symbol, timeframe, how_many_candles):
-        i = how_many_candles
-        while i > 0:
-            close_price_past = iClose(symbol, timeframe, i)
-            open_price_past = iOpen(symbol, timeframe, i)
-
-            if close_price_past <= open_price_past:
-                return False
-            i = i - 1
-        return True
+    if close_price_past > open_price_past:
+        return "Bullish"
+    return ""
 
 
 def prices_recent_bars(currency, timeframe, shift, starting_bar, mode):
