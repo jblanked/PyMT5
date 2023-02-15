@@ -1,6 +1,7 @@
 from datetime import datetime, time
 import MetaTrader5
 import re
+import ordersettings
 
 
 # timeframes
@@ -91,6 +92,10 @@ def order_info(currency_pairr, option):
         for items in data:
             return items.symbol
 
+    if new_type == "ticket":
+        for items in data:
+            return items.ticket
+
     if new_type == "open price":
         for items in data:
             return items.price_open
@@ -98,6 +103,10 @@ def order_info(currency_pairr, option):
     if new_type == "current price":
         for items in data:
             return items.price_current
+
+    if new_type == "profit":
+        for items in data:
+            return items.profit
 
     if new_type == "status":
         for items in data:
@@ -200,10 +209,10 @@ def Get_Risk(useRisk, useLotSize, percentRisk, stopLosss, lotsizeee, symbol):
 
     maxLossInQuoteCurr = accountRisk / tickValue
     quoteDivision = maxLossInQuoteCurr / (stopLosss * pip_value)
-    getRisk = quoteDivision / lotSizes
+    getRisk = round((quoteDivision / lotSizes),2)
 
     if useRisk and not useLotSize:
-        return round(getRisk, 2)
+        return getRisk
     if useLotSize and not useRisk:
         return round(lotsizeee, 2)
     return lotsizeee
@@ -212,8 +221,7 @@ def Get_Risk(useRisk, useLotSize, percentRisk, stopLosss, lotsizeee, symbol):
 def division(numerator, denominator):
     if denominator == 0:
         return 0
-    else:
-        return numerator/denominator
+    return numerator/denominator
 
 
 def Get_US30(symbol):
@@ -286,7 +294,7 @@ def Get_Pair_Extension():
 
 
 def Expiry_name():
-    account_name_1 = ""
+    account_name_1 = "Jacobie Barksdale"
     account_name_2 = ""
     account_name_3 = ""
     account_name_4 = ""
@@ -323,3 +331,163 @@ def Expiry_name():
                        ]:
         return False
     return True
+
+def ModifyTP(takeprofit, symbol, magicnumber, op_type):
+    i = 0
+    total_limit_orders = MetaTrader5.orders_total()
+    total_market_orders = MetaTrader5.positions_total()
+    order_symbol = order_info(symbol,"symbol")
+    order_magic_number = order_info(symbol,"magic number")
+    order_type = order_info(symbol,"type")
+    order_tp = order_info(symbol,"take profit")
+    order_ticket = order_info(symbol,"ticket")
+    order_open_price = order_info(symbol,"open price")
+    order_sl = order_info(symbol,"stop loss")
+
+    total_orders = total_limit_orders + total_market_orders
+
+    while i < total_orders:
+        if order_symbol == symbol and order_magic_number == magicnumber and order_type == op_type:
+            if round((takeprofit - order_tp), 5) != 0:
+                ordersettings.OrderModify(symbol,order_ticket,order_open_price,order_sl,takeprofit)
+        i += 1
+
+
+def OpenedOrdersCount(symbol, magicnumber, op_type):
+    total = 0
+    i = 0
+    total_limit_orders = MetaTrader5.orders_total()
+    total_market_orders = MetaTrader5.positions_total()
+    total_orders = total_limit_orders + total_market_orders
+    order_symbol = order_info(symbol,"symbol")
+    order_magic_number = order_info(symbol,"magic number")
+    order_type = order_info(symbol,"type")
+
+    while i < total_orders:
+        if order_symbol == symbol and order_magic_number == magicnumber and order_type == op_type:
+            total += 1
+        i +=1
+    return total
+
+def SelectLastOrder(symbol, magicnumber, op_type):
+    result = False
+
+    total_limit_orders = MetaTrader5.orders_total()
+    total_market_orders = MetaTrader5.positions_total()
+    total_orders = total_limit_orders + total_market_orders
+
+    order_symbol = order_info(symbol,"symbol")
+    order_magic_number = order_info(symbol,"magic number")
+    order_type = order_info(symbol,"type")
+    i = total_orders - 1
+
+    while i >= 0:
+        if order_symbol == symbol and order_magic_number == magicnumber and order_type == op_type:
+            result = True
+            break
+        i -= 1
+    return result
+
+
+def CheckMartingale(symbol, magicnumber, op_type, pipsTP):
+    order_profit = order_info(symbol, "profit")
+    ask_price = MetaTrader5.symbol_info_tick(
+                symbol).ask 
+    bid_price = MetaTrader5.symbol_info_tick(
+                symbol).bid 
+    open_order_price = order_info(symbol,"open price")
+    order_type = order_info(symbol,"type")
+
+    op_buy =MetaTrader5.ORDER_TYPE_BUY
+    op_sell = MetaTrader5.ORDER_TYPE_SELL
+
+    if SelectLastOrder(symbol, magicnumber,op_type) and order_profit < 0:
+        if order_type == op_buy and abs((open_order_price - ask_price) / Get_Pip_Value(symbol)) >= pipsTP: # i think this should  be pipsTP * getpipvalue, not divide
+            return True
+        if order_type == op_sell and abs((open_order_price - bid_price) / Get_Pip_Value(symbol)) >= pipsTP:
+            return True
+    return False
+
+def CheckMartingale2(symbol, magicnumber, op_type, pipsTP):
+    order_profit = order_info(symbol, "profit")
+    ask_price = MetaTrader5.symbol_info_tick(
+                symbol).ask 
+    bid_price = MetaTrader5.symbol_info_tick(
+                symbol).bid 
+    open_order_price = order_info(symbol,"open price")
+    order_type = order_info(symbol,"type")
+
+    op_buy =MetaTrader5.ORDER_TYPE_BUY
+    op_sell = MetaTrader5.ORDER_TYPE_SELL
+
+    if SelectLastOrder(symbol, magicnumber,op_type) and order_profit < 0:
+        if order_type == op_buy and abs((open_order_price - ask_price) ) >= pipsTP * Get_Pip_Value(symbol):
+            return True
+        if order_type == op_sell and abs((open_order_price - bid_price)) >= pipsTP* Get_Pip_Value(symbol):
+            return True
+    return False
+
+
+
+def use_martingale(symbol, magic_number, stop_loss_price, multiplier, pips_activation, pips_tp, trades, order_comment):
+    order_type = order_info(symbol,"type")
+
+    op_buy =MetaTrader5.ORDER_TYPE_BUY
+    op_sell = MetaTrader5.ORDER_TYPE_SELL
+    if order_type == op_buy:
+        martin = CheckMartingale2(symbol,magic_number,op_buy,pips_activation)
+
+        if martin:
+            martingale(symbol,magic_number,op_buy,stop_loss_price,10,multiplier,pips_tp,trades,order_comment)
+    if order_type == op_sell:
+        martin = CheckMartingale2(symbol,magic_number,op_sell,pips_activation)
+
+        if martin:
+            martingale(symbol,magic_number,op_sell,stop_loss_price,10,multiplier,pips_tp,trades,order_comment)
+            
+def martingale(symbol, magic_number, op_type, stoploss, max_slippage, lot_multiplier,pips_tp, trades, order_comment):
+    order_type = order_info(symbol,"type")
+    order_profit = order_info(symbol, "profit")
+    order_lotsize = order_info(symbol, "lot size")
+
+    op_buy =MetaTrader5.ORDER_TYPE_BUY
+    op_sell = MetaTrader5.ORDER_TYPE_SELL
+
+    order_lots = 0
+    total = OpenedOrdersCount(symbol,magic_number,op_type)
+
+    if trades > total > 0:
+
+        if order_type == op_buy:
+
+            if SelectLastOrder(symbol,magic_number,op_buy) and order_profit <= 0:
+                order_lots = round((order_lotsize * lot_multiplier),2)
+            else:
+                order_lots = order_lotsize
+
+            MetaTrader5.symbol_info_tick(symbol) # refreshing rates
+
+            if not ordersettings.OrderSend(symbol, "buy", order_lots,"ask",max_slippage,
+                True,stoploss,False,pips_tp,order_comment,magic_number):
+                print("Martingale failed, error code = ", MetaTrader5.last_error())
+
+            order_take_profit = order_info(symbol,"take profit")
+            if not ModifyTP(order_take_profit,symbol,magic_number,op_type):
+                print("Martingale modify TP failed, error code = ", MetaTrader5.last_error())
+
+        if order_type == op_sell:
+
+            if SelectLastOrder(symbol,magic_number,op_sell) and order_profit <= 0:
+                order_lots = round((order_lotsize * lot_multiplier),2)
+            else:
+                order_lots = order_lotsize
+
+            MetaTrader5.symbol_info_tick(symbol) # refreshing rates
+
+            if not ordersettings.OrderSend(symbol, "sell", order_lots,"bid",max_slippage,
+                True,stoploss,False,pips_tp,order_comment,magic_number):
+                print("Martingale failed, error code = ",MetaTrader5.last_error())
+
+            order_take_profit = order_info(symbol,"take profit")
+            if not ModifyTP(order_take_profit,symbol,magic_number,op_type):
+                print("Martingale modify TP failed, error code = ", MetaTrader5.last_error())

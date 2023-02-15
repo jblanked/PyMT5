@@ -97,5 +97,38 @@ def OrderSend(symbol, ordertype, lot, orderprice, slipppage, use_custom_stoploss
         }
     if not MetaTrader5.order_send(request):  # if it doesnt send an order
         errorrr = str(MetaTrader5.last_error())
-        sys.exit("Order send failed, error code = " +
+        sys.exit(f"Order send failed \n"
+            f"Stop loss = {stop_loss()} \n" 
+            f"Take profit = {take_profit()} \n" 
+            f"Entry price = {entry_price()} \n" 
+            f"Lot size = {lot} \n" 
+            f"Error code = {errorrr}")  # send error and exit
+
+def OrderModify(pair, ticket, price, stop_loss, take_profit):
+
+    #symboll = MetaTrader5.orders_get(ticket).symbol
+    #magicc = MetaTrader5.orders_get(ticket).magic
+    #lott = MetaTrader5.orders_get(ticket).volume
+
+    symboll = MT5functions.order_info(pair,"symbol")
+    magicc = MT5functions.order_info(pair,"magic number")
+    lott = MT5functions.order_info(pair,"lot size")
+
+    # create a TradeRequest object to modify the order
+    request = {
+        'action' : MetaTrader5.TRADE_ACTION_SLTP, # specify that this is a stop loss/take profit modification
+        'type_filling' : MetaTrader5.ORDER_FILLING_RETURN, # replace with the desired order filling type
+        'type_time' : MetaTrader5.ORDER_TIME_GTC, # replace with the desired order expiration type
+        'magic' : magicc, # replace with the desired order magic number
+        'symbol' : symboll, # get the symbol of the order to modify
+        'volume' : lott, # get the volume of the order to modify
+        'price' : price, # set the new price to modify the order
+        'sl' : stop_loss, # set the new stop loss value
+        'tp' : take_profit, # set the new take profit value
+        'position' : ticket # specify the ticket number of the order to modify
+    }
+
+    if not MetaTrader5.order_send(request):  
+        errorrr = str(MetaTrader5.last_error())
+        sys.exit("Order modify failed, error code = " +
                  errorrr)  # send error and exit

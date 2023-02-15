@@ -3,6 +3,7 @@ import ordersettings
 import login
 import password as p
 import sys
+import MT5functions
 
 
 # account number as integer
@@ -32,10 +33,15 @@ use_moving_average = True
 use_fair_value_gap = False
 use_doji = False
 use_double_flat = False
-use_daily_range = True
+use_daily_range = False
 
 
-currency_pair = "ETHUSD"  # currency pair to trade
+currency_pair = "US30.mini"  # currency pair to trade
+
+# attempt to enable the display of the symbol in MarketWatch
+selected = trend.MetaTrader5.symbol_select(currency_pair,True)
+if not selected:
+    print(f"Failed to select {currency_pair}, error code = {trend.MetaTrader5.last_error()}")
 
 
 # changed integer to your time frame (its in minutes)
@@ -53,8 +59,8 @@ use_risk = True  # use percent risk?
 risk = 1.00  # risk percent
 use_lot_size = False  # use lot size?
 lotsizes = 0.05  # lot size
-stoploss = 50  # stop loss
-takeprofit = 500  # take profit
+stoploss = 25  # stop loss
+takeprofit = 100  # take profit
 
 
 use_time = False  # use custom trading hours?
@@ -97,6 +103,13 @@ doji_wickk_length = 1.0  # Both Wick length's >= X pips
 # double flat settings
 pip_cushion = 1.0  # pip cushion (double flat within pip range)
 double_flat_wick_length = 2.0  # wick length <= X
+
+"======= GRID SETTINGS ======="
+use_martingale = True # Use grid?
+martinactivate= 1 # Pips in between order and to start
+marrtinTP = 1 # new take profit (pips increase/decrease from open price)
+maxtrades = 1 # max amount of trades
+martinMULTI = 1.5 # Order multiplier
 
 
 # lot size for stop loss in pips
@@ -385,7 +398,17 @@ def allow_trades():
         if use_fair_value_gap:
             trade.FairValueGap()
 
+def allow_martingale():
+    if use_martingale:
+        order_stop_loss = MT5functions.order_info(currency_pair,"stop loss")
+        MT5functions.use_martingale(currency_pair,magicnumber,order_stop_loss,martinMULTI,martinactivate,marrtinTP,maxtrades,ordercomment)
+        MT5functions.use_martingale(currency_pair,magicnumber1,order_stop_loss,martinMULTI,martinactivate,marrtinTP,maxtrades,ordercomment)
+        MT5functions.use_martingale(currency_pair,magicnumber2,order_stop_loss,martinMULTI,martinactivate,marrtinTP,maxtrades,ordercomment)
+        MT5functions.use_martingale(currency_pair,magicnumber3,order_stop_loss,martinMULTI,martinactivate,marrtinTP,maxtrades,ordercomment)
+        MT5functions.use_martingale(currency_pair,magicnumber4,order_stop_loss,martinMULTI,martinactivate,marrtinTP,maxtrades,ordercomment)
+        MT5functions.use_martingale(currency_pair,magicnumber5,order_stop_loss,martinMULTI,martinactivate,marrtinTP,maxtrades,ordercomment)
 
-# bad practice, but this needs to run indefinitely
 while True:
     allow_trades()
+    allow_martingale()
+    
