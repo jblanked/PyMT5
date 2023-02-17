@@ -18,20 +18,21 @@ import pandas as pd
 # read more about it: https://github.com/TA-Lib/ta-lib-python
 
 
-def historical_data(symbol,timeframe, current_bar, how_many_bars):
-
+def historical_data(symbol, timeframe, current_bar, how_many_bars):
 
     # Get the historical data for the symbol and timeframe
-    rates = mt5.copy_rates_from_pos(symbol, timeframe, current_bar, how_many_bars)
+    rates = mt5.copy_rates_from_pos(
+        symbol, timeframe, current_bar, how_many_bars)
 
     # Convert the data to a pandas DataFrame
     df = pd.DataFrame(rates)
 
     return df
 
-def iRSI(symbol, timeframe,period, applied_price, shift):
 
-    data_frame = historical_data(symbol,timeframe,shift,100)
+def iRSI(symbol, timeframe, period, applied_price, shift):
+
+    data_frame = historical_data(symbol, timeframe, shift, 100)
 
     # Calculate the RSI using TA-Lib
 

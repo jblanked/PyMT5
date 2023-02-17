@@ -1,7 +1,7 @@
 from datetime import datetime
 import MetaTrader5
 import re
-import pytz # working with timezones
+import pytz  # working with timezones
 
 
 # timeframes
@@ -126,6 +126,7 @@ def order_info(currency_pairr, option):
                     return False
                 return True
 
+
 def symbol_info(currency_pairr, option):
     new_type = option.lower()
     data = MetaTrader5.symbol_info(currency_pairr)
@@ -148,9 +149,8 @@ def symbol_info(currency_pairr, option):
     if new_type == "digits":
         return data.digits
 
-    if new_type == "max lot size": 
-        return 100 # on most broker this is 100, will test this
-
+    if new_type == "max lot size":
+        return 100  # on most broker this is 100, will test this
 
 
 def check_if_order_opened(symbol, magicnumberr):
@@ -159,7 +159,7 @@ def check_if_order_opened(symbol, magicnumberr):
 
     magic = order_info(symbol, "magic number")
     order_symbol = order_info(symbol, "symbol")
-    
+
     for open_orders in total_list:
         if total_limit_orders == 0:
             return False
@@ -167,6 +167,7 @@ def check_if_order_opened(symbol, magicnumberr):
         if total_limit_orders != 0 and int(magic) == magicnumberr and symbol == str(order_symbol):
             return True
     return True
+
 
 def check_if_position_opened(symbol, magicnumberr):
     total_market_orders = MetaTrader5.positions_total()
@@ -185,8 +186,10 @@ def check_if_position_opened(symbol, magicnumberr):
 
 def allow_time(useTimer, start_time, stop_time):
     current_time = datetime.now(pytz.utc).time()
-    start_time = datetime.strptime(start_time, "%H:%M").time().replace(tzinfo=pytz.utc)
-    stop_time = datetime.strptime(stop_time, "%H:%M").time().replace(tzinfo=pytz.utc)
+    start_time = datetime.strptime(
+        start_time, "%H:%M").time().replace(tzinfo=pytz.utc)
+    stop_time = datetime.strptime(
+        stop_time, "%H:%M").time().replace(tzinfo=pytz.utc)
     if not useTimer:
         return True
     if useTimer and stop_time >= current_time >= start_time:
@@ -194,9 +197,8 @@ def allow_time(useTimer, start_time, stop_time):
     return False
 
 
-
 def Get_Pip_Value(symbol):
-    digits = symbol_info(symbol,'digits')
+    digits = symbol_info(symbol, 'digits')
 
     lowercase_symbol = symbol.lower()
 
@@ -214,8 +216,8 @@ def Get_Risk(useRisk, useLotSize, percentRisk, stopLosss, lotsizeee, symbol):
     accEquity = get_account_info("equity")
     decimalRisk = percentRisk / 100
     accountRisk = accEquity * decimalRisk
-    lotSizes = symbol_info(symbol,"max lot size")
-    tickValue = symbol_info(symbol,"tick value")
+    lotSizes = symbol_info(symbol, "max lot size")
+    tickValue = symbol_info(symbol, "tick value")
     account_company = get_account_info("company")
     pip_value = Get_Pip_Value(symbol)
 
@@ -236,7 +238,7 @@ def Get_Risk(useRisk, useLotSize, percentRisk, stopLosss, lotsizeee, symbol):
 
     maxLossInQuoteCurr = accountRisk / tickValue
     quoteDivision = maxLossInQuoteCurr / (stopLosss * pip_value)
-    getRisk = round((quoteDivision / lotSizes),2)
+    getRisk = round((quoteDivision / lotSizes), 2)
 
     if useRisk and not useLotSize:
         return getRisk
@@ -252,7 +254,7 @@ def division(numerator, denominator):
 
 
 def Get_US30(symbol):
-    current_symbol_string = str(symbol_info(symbol,"symbol"))
+    current_symbol_string = str(symbol_info(symbol, "symbol"))
     if get_account_info("company") == "FTMO S.R.O.":
         return "US30.cash"
 
@@ -270,7 +272,7 @@ def Get_US30(symbol):
 
 
 def Get_NAS100(symbol):
-    current_symbol_string = str(symbol_info(symbol,"symbol"))
+    current_symbol_string = str(symbol_info(symbol, "symbol"))
     if get_account_info("company") == "FTMO S.R.O.":
         return "US100.cash"
 

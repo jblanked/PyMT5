@@ -43,9 +43,10 @@ use_daily_range = False
 currency_pair = "ETHUSD"  # currency pair to trade
 
 # attempt to enable the display of the symbol in MarketWatch
-selected = trend.MetaTrader5.symbol_select(currency_pair,True)
+selected = trend.MetaTrader5.symbol_select(currency_pair, True)
 if not selected:
-    print(f"Failed to select {currency_pair}, error code = {trend.MetaTrader5.last_error()}")
+    print(
+        f"Failed to select {currency_pair}, error code = {trend.MetaTrader5.last_error()}")
 
 
 # changed integer to your time frame (its in minutes)
@@ -109,24 +110,24 @@ pip_cushion = 1.0  # pip cushion (double flat within pip range)
 double_flat_wick_length = 2.0  # wick length <= X
 
 "======= GRID SETTINGS ======="
-use_martingale = True # Use grid?
-martinactivate= 1 # Pips in between order and to start
-marrtinTP = 1 # new take profit (pips increase/decrease from open price)
-maxtrades = 3 # max amount of trades
-martinMULTI = 1.5 # Order multiplier
+use_martingale = True  # Use grid?
+martinactivate = 1  # Pips in between order and to start
+marrtinTP = 1  # new take profit (pips increase/decrease from open price)
+maxtrades = 3  # max amount of trades
+martinMULTI = 1.5  # Order multiplier
 
 "======= TAKE PARTIAL SETTINGS ======="
 use_takepartials = False  # Use take partials?
 close_percent = 50.0   # Close how much percent?
-break_start = 2 #  Take partials after how many pips in profit (1)
-break_start_2 = 20 #  Take partials after how many pips in profit (2)
-break_start_3 = 60 #  Take partials after how many pips in profit (3)
-break_start_4 = 80 #  Take partials after how many pips in profit (4)
-break_stop = 0 #  Move stop loss in profit X pips
+break_start = 2  # Take partials after how many pips in profit (1)
+break_start_2 = 20  # Take partials after how many pips in profit (2)
+break_start_3 = 60  # Take partials after how many pips in profit (3)
+break_start_4 = 80  # Take partials after how many pips in profit (4)
+break_stop = 0  # Move stop loss in profit X pips
 
 "======= DAILY TARGET ======="
-use_daily_target = False # add this into the functions below
-daily_target_percent = 100.0 # Daily Profit Target (%)
+use_daily_target = False  # add this into the functions below
+daily_target_percent = 100.0  # Daily Profit Target (%)
 daily_loss_percent = 40.0  # Daily Max drawdown (%)
 
 
@@ -297,12 +298,12 @@ class Trade:
         # this one will buy if there's a bullish fair value gap
         # and sell if there's a bearish fair value gap
         if not trend.MT5functions.check_if_order_opened(currency_pair, magicnumber4):
-            if dailytarget.ApplyDailyTarget(currency_pair,daily_target_percent,daily_loss_percent,magicnumber4):
+            if dailytarget.ApplyDailyTarget(currency_pair, daily_target_percent, daily_loss_percent, magicnumber4):
                 if fair_value_gap_object.trend(currency_pair,
-                                            time_frame,
-                                            middlebodypercent,
-                                            firstbodypercent, ~
-                                            thirdbodypercent) == "Buy":
+                                               time_frame,
+                                               middlebodypercent,
+                                               firstbodypercent, ~
+                                               thirdbodypercent) == "Buy":
 
                     ordersettings.OrderSend(currency_pair, order_type_buy_limit, lotsize, FVG_prices("bullish", "entry"), 0, True,
                                             FVG_prices("bullish", "stop loss"), True, FVG_prices("bullish", "take profit"), ordercomment, magicnumber4)
@@ -310,10 +311,10 @@ class Trade:
                     #    f"Bullish Fair Value gap... Buying {currency_pair} at {FVG_bullish_entry}")
 
                 if fair_value_gap_object.trend(currency_pair,
-                                            time_frame,
-                                            middlebodypercent,
-                                            firstbodypercent,
-                                            thirdbodypercent) == "Sell":
+                                               time_frame,
+                                               middlebodypercent,
+                                               firstbodypercent,
+                                               thirdbodypercent) == "Sell":
 
                     ordersettings.OrderSend(currency_pair, order_type_sell_limit, lotsize, FVG_prices("bearish", "entry"),
                                             0, True, FVG_prices("bearish", "stop loss"), True, FVG_prices("bearish", "take profit"), ordercomment, magicnumber4)
@@ -322,7 +323,7 @@ class Trade:
         # this one will buy if there's a bullish Double flat bottom
         # and sell if theres a bearish double flat top
         if not trend.MT5functions.check_if_order_opened(currency_pair, magicnumber3):
-            if dailytarget.ApplyDailyTarget(currency_pair,daily_target_percent,daily_loss_percent,magicnumber3):
+            if dailytarget.ApplyDailyTarget(currency_pair, daily_target_percent, daily_loss_percent, magicnumber3):
                 if double_flat_object.trend(currency_pair,
                                             time_frame,
                                             pip_cushion,
@@ -343,20 +344,20 @@ class Trade:
         # this one will buy if there's a bullish Doji candle
         # and sell if there's a bearish doji candle
         if not trend.MT5functions.check_if_order_opened(currency_pair, magicnumber2):
-            if dailytarget.ApplyDailyTarget(currency_pair,daily_target_percent,daily_loss_percent,magicnumber2):
+            if dailytarget.ApplyDailyTarget(currency_pair, daily_target_percent, daily_loss_percent, magicnumber2):
                 if doji_object.trend(currency_pair,
-                                    time_frame,
-                                    doji_body_pips,
-                                    doji_wick_pips,
-                                    doji_wickk_length) == "Buy":
+                                     time_frame,
+                                     doji_body_pips,
+                                     doji_wick_pips,
+                                     doji_wickk_length) == "Buy":
                     ordersettings.OrderSend(currency_pair, order_type_buy_limit, lotsize, Doji_prices("bullish", "entry"), 0, True,
                                             Doji_prices("bullish", "stop loss"), False, takeprofit, ordercomment, magicnumber2)
 
                 if doji_object.trend(currency_pair,
-                                    time_frame,
-                                    doji_body_pips,
-                                    doji_wick_pips,
-                                    doji_wickk_length) == "Sell":
+                                     time_frame,
+                                     doji_body_pips,
+                                     doji_wick_pips,
+                                     doji_wickk_length) == "Sell":
                     ordersettings.OrderSend(currency_pair, order_type_buy_limit, lotsize, Doji_prices("bearish", "entry"), 0, True,
                                             Doji_prices("bearish", "stop loss"), False, takeprofit, ordercomment, magicnumber2)
 
@@ -368,22 +369,22 @@ class Trade:
         bid_price = trend.MetaTrader5.symbol_info_tick(
             currency_pair).bid  # getting the bid price
         if not trend.MT5functions.check_if_position_opened(currency_pair, magicnumber):
-            if dailytarget.ApplyDailyTarget(currency_pair,daily_target_percent,daily_loss_percent,magicnumber):
+            if dailytarget.ApplyDailyTarget(currency_pair, daily_target_percent, daily_loss_percent, magicnumber):
                 if trend.iMA(currency_pair,
-                            time_frame,
-                            ma_period,
-                            ma_mode,
-                            ma_applied_price,
-                            0) < ask_price:
+                             time_frame,
+                             ma_period,
+                             ma_mode,
+                             ma_applied_price,
+                             0) < ask_price:
                     ordersettings.OrderSend(currency_pair, order_type_buy, lotsize, "ask", 0, False,
                                             stoploss, False, takeprofit, ordercomment, magicnumber)
                     # print(f"Buying {currency_pair} at {trend.MT5functions.get_order_open_price()}... price is in the Moving Average buy setup")
                 if trend.iMA(currency_pair,
-                            time_frame,
-                            ma_period,
-                            ma_mode,
-                            ma_applied_price,
-                            0) > bid_price:
+                             time_frame,
+                             ma_period,
+                             ma_mode,
+                             ma_applied_price,
+                             0) > bid_price:
                     ordersettings.OrderSend(currency_pair, order_type_sell, lotsize, "bid", 0, False,
                                             stoploss, False, takeprofit, ordercomment, magicnumber)
 
@@ -395,7 +396,7 @@ class Trade:
         daily_high = trend.iHigh(
             currency_pair, trend.MT5functions.timeframe(1440), 0)
         if not trend.MT5functions.check_if_order_opened(currency_pair, magicnumber1):
-            if dailytarget.ApplyDailyTarget(currency_pair,daily_target_percent,daily_loss_percent,magicnumber1):
+            if dailytarget.ApplyDailyTarget(currency_pair, daily_target_percent, daily_loss_percent, magicnumber1):
                 ordersettings.OrderSend(currency_pair, order_type_buy_limit, lotsize, daily_low, 0, False,
                                         stoploss, False, takeprofit, ordercomment, magicnumber1)
                 ordersettings.OrderSend(currency_pair, order_type_sell_limit, lotsize, daily_high, 0, False,
@@ -421,33 +422,39 @@ def allow_trades():
         if use_fair_value_gap:
             trade.FairValueGap()
 
+
 def allow_martingale():
     if use_martingale:
-        order_stop_loss = MT5functions.order_info(currency_pair,"stop loss")
-        martingale.use_martingale(currency_pair,magicnumber,order_stop_loss,martinMULTI,martinactivate,marrtinTP,maxtrades,ordercomment)
-        martingale.use_martingale(currency_pair,magicnumber1,order_stop_loss,martinMULTI,martinactivate,marrtinTP,maxtrades,ordercomment)
-        martingale.use_martingale(currency_pair,magicnumber2,order_stop_loss,martinMULTI,martinactivate,marrtinTP,maxtrades,ordercomment)
-        martingale.use_martingale(currency_pair,magicnumber3,order_stop_loss,martinMULTI,martinactivate,marrtinTP,maxtrades,ordercomment)
-        martingale.use_martingale(currency_pair,magicnumber4,order_stop_loss,martinMULTI,martinactivate,marrtinTP,maxtrades,ordercomment)
-
-
+        order_stop_loss = MT5functions.order_info(currency_pair, "stop loss")
+        martingale.use_martingale(currency_pair, magicnumber, order_stop_loss,
+                                  martinMULTI, martinactivate, marrtinTP, maxtrades, ordercomment)
+        martingale.use_martingale(currency_pair, magicnumber1, order_stop_loss,
+                                  martinMULTI, martinactivate, marrtinTP, maxtrades, ordercomment)
+        martingale.use_martingale(currency_pair, magicnumber2, order_stop_loss,
+                                  martinMULTI, martinactivate, marrtinTP, maxtrades, ordercomment)
+        martingale.use_martingale(currency_pair, magicnumber3, order_stop_loss,
+                                  martinMULTI, martinactivate, marrtinTP, maxtrades, ordercomment)
+        martingale.use_martingale(currency_pair, magicnumber4, order_stop_loss,
+                                  martinMULTI, martinactivate, marrtinTP, maxtrades, ordercomment)
 
 
 def allow_takepartials():
     if use_takepartials:
-        takepartials.Take_Partials(currency_pair,magicnumber,break_start,close_percent,break_stop,break_start_2,break_start_3,break_start_4)
-        takepartials.Take_Partials(currency_pair,magicnumber1,break_start,close_percent,break_stop,break_start_2,break_start_3,break_start_4)
-        takepartials.Take_Partials(currency_pair,magicnumber2,break_start,close_percent,break_stop,break_start_2,break_start_3,break_start_4)
-        takepartials.Take_Partials(currency_pair,magicnumber3,break_start,close_percent,break_stop,break_start_2,break_start_3,break_start_4)
-        takepartials.Take_Partials(currency_pair,magicnumber4,break_start,close_percent,break_stop,break_start_2,break_start_3,break_start_4)
+        takepartials.Take_Partials(currency_pair, magicnumber, break_start,
+                                   close_percent, break_stop, break_start_2, break_start_3, break_start_4)
+        takepartials.Take_Partials(currency_pair, magicnumber1, break_start,
+                                   close_percent, break_stop, break_start_2, break_start_3, break_start_4)
+        takepartials.Take_Partials(currency_pair, magicnumber2, break_start,
+                                   close_percent, break_stop, break_start_2, break_start_3, break_start_4)
+        takepartials.Take_Partials(currency_pair, magicnumber3, break_start,
+                                   close_percent, break_stop, break_start_2, break_start_3, break_start_4)
+        takepartials.Take_Partials(currency_pair, magicnumber4, break_start,
+                                   close_percent, break_stop, break_start_2, break_start_3, break_start_4)
 
-
-    
 
 while True:
     allow_trades()
     if trend.MetaTrader5.positions_total() > 0:
         allow_martingale()
         allow_takepartials()
-    charts.plot(currency_pair, time_frame,"PRICE_CLOSE",500)
-
+    charts.plot(currency_pair, time_frame, "PRICE_CLOSE", 500)
