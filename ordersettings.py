@@ -16,6 +16,7 @@ def OrderSend(symbol, ordertype, lot, orderprice, slipppage, use_custom_stoploss
         if orderprice == "bid":
             return MetaTrader5.symbol_info_tick(
                 symbol).bid  # getting the bid price
+        
         return orderprice
 
     def stop_loss():  # defining the stop loss
@@ -25,6 +26,7 @@ def OrderSend(symbol, ordertype, lot, orderprice, slipppage, use_custom_stoploss
             return entry_price() - stoplosss * pip_value
         if not use_custom_stoploss and new_order_type in ["sell", "sell limit", "sell stop"]:
             return entry_price() + stoplosss * pip_value
+        
         return stoplosss
 
     def take_profit():  # defining the take profit
@@ -34,6 +36,7 @@ def OrderSend(symbol, ordertype, lot, orderprice, slipppage, use_custom_stoploss
             return entry_price() + takeeprofitt * pip_value
         if not use_custom_takeprofit and new_order_type in ["sell", "sell limit", "sell stop"]:
             return entry_price() - takeeprofitt * pip_value
+        
         return takeeprofitt
 
     market_execution = MetaTrader5.TRADE_ACTION_DEAL  # market order
@@ -106,10 +109,6 @@ def OrderSend(symbol, ordertype, lot, orderprice, slipppage, use_custom_stoploss
 
 def OrderModify(pair, ticket, price, stop_loss, take_profit):
 
-    #symboll = MetaTrader5.orders_get(ticket).symbol
-    #magicc = MetaTrader5.orders_get(ticket).magic
-    #lott = MetaTrader5.orders_get(ticket).volume
-
     symboll = MT5functions.order_info(pair,"symbol")
     magicc = MT5functions.order_info(pair,"magic number")
     lott = MT5functions.order_info(pair,"lot size")
@@ -128,6 +127,40 @@ def OrderModify(pair, ticket, price, stop_loss, take_profit):
         'position' : ticket # specify the ticket number of the order to modify
     }
 
+    if not MetaTrader5.order_send(request):  
+        errorrr = str(MetaTrader5.last_error())
+        sys.exit("Order modify failed, error code = " +
+                 errorrr)  # send error and exit
+
+def OrderClose(symboll, ticket, lot_size, slippage):
+
+    close_price = 0
+    new_order_type = 0
+
+    order_type = MT5functions.order_info(symboll,"type")
+
+    if order_type == MetaTrader5.ORDER_TYPE_BUY:
+        close_price = MetaTrader5.symbol_info_tick(symboll).ask
+        new_order_type = MetaTrader5.ORDER_TYPE_SELL
+    if order_type == MetaTrader5.ORDER_TYPE_SELL:
+        close_price = MetaTrader5.symbol_info_tick(symboll).bid
+        new_order_type = MetaTrader5.ORDER_TYPE_BUY
+
+
+    # Create a TradeRequest object to close the order
+    request = {
+        'action': MetaTrader5.TRADE_ACTION_DEAL,  # specify that this is an order close operation
+        'symbol': symboll,  # get the symbol of the order to close
+        'volume': lot_size,  # get the volume of the order to close
+        'type': new_order_type,  # specify the order type to close the order
+        'position': ticket,  # specify the ticket number of the order to close
+        'price': close_price,  # set the price at which to close the order
+        'deviation': slippage,  # set the slippage value in pips
+        "type_time": MetaTrader5.ORDER_TIME_GTC, # good til cancelled
+        "type_filling": MetaTrader5.ORDER_FILLING_IOC,
+    }
+
+    # Send the order close request
     if not MetaTrader5.order_send(request):  
         errorrr = str(MetaTrader5.last_error())
         sys.exit("Order modify failed, error code = " +

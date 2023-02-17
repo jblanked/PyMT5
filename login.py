@@ -10,7 +10,7 @@ def MT5_login(account_number, account_password, broker_server_name):
                                 server=broker_server_name # broker(string)
                                 ):
          # send error and exit if it doesnt open
-        sys.exit(f"Couldn't start MT5, error code = {MetaTrader5.last_error()}")
+        sys.exit(f"Couldn't initialize and start MT5, error code = {MetaTrader5.last_error()}")
     else: # if it does open
         print("System initialized and account logged in")
 
