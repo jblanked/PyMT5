@@ -1,6 +1,5 @@
 import talib
-import MetaTrader5 as mt5
-import pandas as pd
+import charts
 
 
 # on windows i went to
@@ -18,36 +17,31 @@ import pandas as pd
 # read more about it: https://github.com/TA-Lib/ta-lib-python
 
 
-def historical_data(symbol, timeframe, current_bar, how_many_bars):
+def iRSI(symbol, timeframe, period, applied_price, shift,how_many_bars, year, month, day, testing_type):
 
-    # Get the historical data for the symbol and timeframe
-    rates = mt5.copy_rates_from_pos(
-        symbol, timeframe, current_bar, how_many_bars)
+    test_type = testing_type.lower()
+    price = 0
 
-    # Convert the data to a pandas DataFrame
-    df = pd.DataFrame(rates)
+    if test_type == "control points":
+        data_frame = charts.historical_data(symbol, timeframe, shift, how_many_bars)
 
-    return df
+        # Calculate the RSI using TA-Lib
 
+        if applied_price == "PRICE_CLOSE":
+            price = talib.RSI(data_frame['close'], timeperiod=period)
 
-def iRSI(symbol, timeframe, period, applied_price, shift):
+        if applied_price == "PRICE_OPEN":
+            price = talib.RSI(data_frame['open'], timeperiod=period)
 
-    data_frame = historical_data(symbol, timeframe, shift, 100)
+        if applied_price == "PRICE_LOW":
+            price = talib.RSI(data_frame['low'], timeperiod=period)
 
-    # Calculate the RSI using TA-Lib
+        if applied_price == "PRICE_HIGH":
+            price = talib.RSI(data_frame['high'], timeperiod=period)
 
-    if applied_price == "PRICE_CLOSE":
-        rsi = talib.RSI(data_frame['close'], timeperiod=period)
+    if test_type == "every tick":
+        data_frame = charts.tick_data(symbol,year,month,day)
 
-    if applied_price == "PRICE_OPEN":
-        rsi = talib.RSI(data_frame['open'], timeperiod=period)
-
-    if applied_price == "PRICE_LOW":
-        rsi = talib.RSI(data_frame['low'], timeperiod=period)
-
-    if applied_price == "PRICE_HIGH":
-        rsi = talib.RSI(data_frame['high'], timeperiod=period)
-
-    rsi_price = rsi[99]
-
-    return rsi_price
+        price = talib.RSI(data_frame['ask'], timeperiod=period)
+    
+    return price

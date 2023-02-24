@@ -37,6 +37,9 @@ def get_account_info(option):
         if new_type == "equity":
             return account_data.equity
 
+        if new_type == "currency":
+            return account_data.currency
+
         if new_type == "company":
             return account_data.company
 
@@ -145,6 +148,12 @@ def symbol_info(currency_pairr, option):
 
     if new_type == "point":
         return data.point
+
+    if new_type == "front":
+        return data.currency_base
+
+    if new_type == "end":
+        return data.currency_profit
 
     if new_type == "digits":
         return data.digits
@@ -360,3 +369,39 @@ def Expiry_name():
                        ]:
         return False
     return True
+
+
+def profit_in_dollars(symbol, lotsize):
+
+
+    base = symbol_info(symbol,"base")
+    
+    if get_account_info("company") == "Osprey Ltd":
+
+        commission = lotsize * 100 * 0.07
+
+        if get_account_info("currency") == 'USD':
+
+            if symbol in ['US30', "NAS100"]:
+                return 100 * lotsize - commission # this is $1 per pip on smallest lot
+
+            if base == "USD":
+                return 1000 * lotsize - commission # this is $1 per 10 pips on smallest lot
+
+            if base == "CAD":
+                return 1347.45 * lotsize - commission # this is $1 per 10 pips on smallest lot
+
+            if base == "JPY":
+                return 1341.05 * lotsize - commission # this is $1 per 10 pips on smallest lot
+
+            if base == "AUD":
+                return 1453.7 * lotsize - commission # this is $1 per 10 pips on smallest lot
+
+            if base == "CHF":
+                return 924.94 * lotsize - commission # this is $1 per 10 pips on smallest lot
+
+            if base == "NZD":
+                return 1601.28 * lotsize - commission # this is $1 per 10 pips on smallest lot
+            
+
+    

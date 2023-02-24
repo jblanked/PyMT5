@@ -8,7 +8,7 @@ import martingale
 import takepartials
 import dailytarget
 import charts
-
+import MT5backtesting as bt
 
 # account number as integer
 # I stored mine in a separate password.py
@@ -33,6 +33,8 @@ if not trend.MT5functions.Expiry_name():
 
 
 # choose which strategies you want to use
+show_chart = False
+backtest = False
 use_moving_average = False
 use_fair_value_gap = False
 use_doji = False
@@ -40,7 +42,7 @@ use_double_flat = False
 use_daily_range = False
 
 
-currency_pair = "ETHUSD"  # currency pair to trade
+currency_pair = "US30"  # currency pair to trade
 
 # attempt to enable the display of the symbol in MarketWatch
 selected = trend.MetaTrader5.symbol_select(currency_pair, True)
@@ -65,8 +67,8 @@ use_risk = True  # use percent risk?
 risk = 1.00  # risk percent
 use_lot_size = False  # use lot size?
 lotsizes = 0.10  # lot size
-stoploss = 25  # stop loss
-takeprofit = 500  # take profit
+stoploss = 10  # stop loss
+takeprofit = 10  # take profit
 
 
 use_time = False  # use custom trading hours?
@@ -451,10 +453,34 @@ def allow_takepartials():
         takepartials.Take_Partials(currency_pair, magicnumber4, break_start,
                                    close_percent, break_stop, break_start_2, break_start_3, break_start_4)
 
+current_bar = 0
+max_bars = 10000
+test_balance = 10000
+test_lotsize = 0.15
+
+year = 2023
+month = 2
+day = 15
+
+if backtest:
+
+    back_test_object = bt.Run_Test(currency_pair,time_frame,year,month,day,current_bar,max_bars,test_balance,"control points")
+
+    back_test_object.RSI(rsi_period,"PRICE_CLOSE",35,65,takeprofit,stoploss,test_lotsize)
+
+    sys.exit("Testing finished")
+
+max_candles = 15
+
+if show_chart:
+    while True:
+        charts.candlestick_chart(currency_pair, time_frame,max_candles)
+
 
 while True:
     allow_trades()
     if trend.MetaTrader5.positions_total() > 0:
         allow_martingale()
         allow_takepartials()
-    charts.plot(currency_pair, time_frame, "PRICE_CLOSE", 500)
+
+
